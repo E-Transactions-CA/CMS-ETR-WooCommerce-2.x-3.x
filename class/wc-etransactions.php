@@ -265,7 +265,7 @@ class WC_Etransactions {
 		$values['PBX_CMD'] = $order->get_id().' - '.$this->getBillingName($order);
 
 		// Amount
-		$orderAmount = floatval($order->order_total);
+		$orderAmount = floatval($order->get_total());
 		$amountScale = $this->_currencyDecimals[$values['PBX_DEVISE']];
 		$amountScale = pow(10, $amountScale);
 		switch ($type) {
