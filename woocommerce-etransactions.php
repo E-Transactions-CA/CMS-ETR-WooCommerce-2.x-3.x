@@ -71,7 +71,7 @@ function woocommerce_etransactions_initialization() {
 		require_once(dirname(__FILE__).'/class/wc-etransactions.php');
 		require_once(dirname(__FILE__).'/class/wc-etransactions-abstract-gateway.php');
 		require_once(dirname(__FILE__).'/class/wc-etransactions-standard-gateway.php');
-        require_once(dirname(__FILE__).'/class/wc-etransactions-twotime-gateway.php');
+        	require_once(dirname(__FILE__).'/class/wc-etransactions-twotime-gateway.php');
 		require_once(dirname(__FILE__).'/class/wc-etransactions-threetime-gateway.php');
 		require_once(dirname(__FILE__).'/class/wc-etransactions-encrypt.php');
 	}
@@ -88,7 +88,7 @@ function woocommerce_etransactions_initialization() {
 
 function woocommerce_etransactions_register(array $methods) {
 	$methods[] = 'WC_Etransactions_Standard_Gateway';
-    $methods[] = 'WC_Etransactions_Twotime_Gateway';
+    	$methods[] = 'WC_Etransactions_Twotime_Gateway';
 	$methods[] = 'WC_Etransactions_Threetime_Gateway';
 	return $methods;
 }
@@ -102,6 +102,10 @@ function woocommerce_etransactions_show_details(WC_Order $order) {
 	switch ($method) {
 		case 'etransactions_std':
 			$method = new WC_Etransactions_Standard_Gateway();
+			$method->showDetails($order);
+			break;
+		case 'etransactions_2x':
+			$method = new WC_Etransactions_Twotime_Gateway();
 			$method->showDetails($order);
 			break;
 		case 'etransactions_3x':
