@@ -245,7 +245,7 @@ class WC_Etransactions {
 
 	/**
 	 * @params WC_Order $order Order
-	 * @params string $type Type of payment (standard or threetime)
+	 * @params string $type Type of payment (standard, twotime or threetime)
 	 * @params array $additionalParams Additional parameters
 	 */
 	public function buildSystemParams(WC_Order $order, $type, array $additionalParams = array()) {
@@ -280,24 +280,41 @@ class WC_Etransactions {
 				$values['PBX_TOTAL'] = sprintf('%03d', round($orderAmount * $amountScale));
 				break;
 
+				
+
+			case 'twotime':
+				// Compute each payment amount
+				$step = round($orderAmount * $amountScale / 2);
+				$firstStep = ($orderAmount * $amountScale) - $step;
+				$values['PBX_TOTAL'] = sprintf('%03d', $firstStep);
+				$values['PBX_2MONT1'] = sprintf('%03d', $step);
+
+				// Payment dates
+				$now = new DateTime();
+				$now->modify('1 month');
+				$values['PBX_DATE1'] = $now->format('d/m/Y');
+
+				// Force validity date of card
+				$values['PBX_DATEVALMAX'] = $now->format('ym');
+				break;
 			case 'threetime':
-		        // Compute each payment amount
-		        $step = round($orderAmount * $amountScale / 3);
-		        $firstStep = ($orderAmount * $amountScale) - 2 * $step;
-		        $values['PBX_TOTAL'] = sprintf('%03d', $firstStep);
-		        $values['PBX_2MONT1'] = sprintf('%03d', $step);
-		        $values['PBX_2MONT2'] = sprintf('%03d', $step);
+				// Compute each payment amount
+				$step = round($orderAmount * $amountScale / 3);
+				$firstStep = ($orderAmount * $amountScale) - 2 * $step;
+				$values['PBX_TOTAL'] = sprintf('%03d', $firstStep);
+				$values['PBX_2MONT1'] = sprintf('%03d', $step);
+				$values['PBX_2MONT2'] = sprintf('%03d', $step);
 
-		        // Payment dates
-		        $now = new DateTime();
-		        $now->modify('1 month');
-		        $values['PBX_DATE1'] = $now->format('d/m/Y');
-		        $now->modify('1 month');
-		        $values['PBX_DATE2'] = $now->format('d/m/Y');
+				// Payment dates
+				$now = new DateTime();
+				$now->modify('1 month');
+				$values['PBX_DATE1'] = $now->format('d/m/Y');
+				$now->modify('1 month');
+				$values['PBX_DATE2'] = $now->format('d/m/Y');
 
-		        // Force validity date of card
-		        $values['PBX_DATEVALMAX'] = $now->format('ym');
-		        break;
+				// Force validity date of card
+				$values['PBX_DATEVALMAX'] = $now->format('ym');
+				break;
 
 			default:
 				$message  = __('Unexpected type %s', WC_ETRANSACTIONS_PLUGIN);

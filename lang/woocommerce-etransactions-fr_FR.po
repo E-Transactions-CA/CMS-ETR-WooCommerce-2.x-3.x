@@ -1,293 +1,296 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Woocommerce E-Transactions plugin\n"
-"POT-Creation-Date: 2015-10-06 12:50+0200\n"
-"PO-Revision-Date: 2017-10-18 09:41+0200\n"
-"Last-Translator: \n"
+"POT-Creation-Date: 2019-06-05 12:06+0200\n"
+"PO-Revision-Date: 2019-06-05 12:06+0200\n"
+"Last-Translator: Olivier Gorzalka <olivier@behaba.com>\n"
 "Language-Team: BM Services <wordpress@e-transactions.fr>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 1.8.5\n"
+"X-Generator: Poedit 2.0.6\n"
 "X-Poedit-Basepath: ..\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 "X-Poedit-SourceCharset: UTF-8\n"
 "X-Poedit-KeywordsList: __;__e\n"
 "X-Poedit-SearchPath-0: .\n"
 
-#: class/wc-etransactions-abstract-gateway.php:67
-#: class/wc-etransactions-abstract-gateway.php:112
+#: class/wc-etransactions-abstract-gateway.php:70
+#: class/wc-etransactions-abstract-gateway.php:115
 msgid "Enable/Disable"
 msgstr "Actif/Inactif"
 
-#: class/wc-etransactions-abstract-gateway.php:69
+#: class/wc-etransactions-abstract-gateway.php:72
 msgid "Enable E-Transactions Payment"
 msgstr "Activer le paiement par E-Transactions"
 
-#: class/wc-etransactions-abstract-gateway.php:73
+#: class/wc-etransactions-abstract-gateway.php:76
 msgid "Title"
 msgstr "Titre"
 
-#: class/wc-etransactions-abstract-gateway.php:75
+#: class/wc-etransactions-abstract-gateway.php:78
 msgid "This controls the title which the user sees during checkout."
 msgstr "Titre visible par le client lors d'une commande"
 
-#: class/wc-etransactions-abstract-gateway.php:79
+#: class/wc-etransactions-abstract-gateway.php:82
 msgid "Description"
 msgstr "Description"
 
-#: class/wc-etransactions-abstract-gateway.php:81
+#: class/wc-etransactions-abstract-gateway.php:84
 msgid "Payment method description that the customer will see on your checkout."
 msgstr ""
-"Description de la méthode de paiement . Visible par le client lors d'une commande"
+"Description de la méthode de paiement . Visible par le client lors d'une "
+"commande"
 
-#: class/wc-etransactions-abstract-gateway.php:86
+#: class/wc-etransactions-abstract-gateway.php:89
 msgid "Delay"
 msgstr "Délai"
 
-#: class/wc-etransactions-abstract-gateway.php:89
+#: class/wc-etransactions-abstract-gateway.php:92
 msgid "Immediate"
 msgstr "Immédiat"
 
-#: class/wc-etransactions-abstract-gateway.php:90
+#: class/wc-etransactions-abstract-gateway.php:93
 msgid "1 day"
 msgstr "1 jour"
 
-#: class/wc-etransactions-abstract-gateway.php:91
+#: class/wc-etransactions-abstract-gateway.php:94
 msgid "2 days"
 msgstr "2 jours"
 
-#: class/wc-etransactions-abstract-gateway.php:92
+#: class/wc-etransactions-abstract-gateway.php:95
 msgid "3 days"
 msgstr "3 jours"
 
-#: class/wc-etransactions-abstract-gateway.php:93
+#: class/wc-etransactions-abstract-gateway.php:96
 msgid "4 days"
 msgstr "4 jours"
 
-#: class/wc-etransactions-abstract-gateway.php:94
+#: class/wc-etransactions-abstract-gateway.php:97
 msgid "5 days"
 msgstr "5 jours"
 
-#: class/wc-etransactions-abstract-gateway.php:95
+#: class/wc-etransactions-abstract-gateway.php:98
 msgid "6 days"
 msgstr "6 jours"
 
-#: class/wc-etransactions-abstract-gateway.php:96
+#: class/wc-etransactions-abstract-gateway.php:99
 msgid "7 days"
 msgstr "7 jours"
 
-#: class/wc-etransactions-abstract-gateway.php:102
-#: class/wc-etransactions-abstract-gateway.php:124
+#: class/wc-etransactions-abstract-gateway.php:105
+#: class/wc-etransactions-abstract-gateway.php:127
 msgid "Minimal amount"
 msgstr "Montant minimal"
 
-#: class/wc-etransactions-abstract-gateway.php:104
+#: class/wc-etransactions-abstract-gateway.php:107
 msgid ""
-"Enable this payment method for order with amount greater or equals to this amount "
-"(empty to ignore this condition)"
+"Enable this payment method for order with amount greater or equals to this "
+"amount (empty to ignore this condition)"
 msgstr ""
-"Activer 3D Secure pour les commandes dont le montant est supérieur ou égal au "
-"montant suivant (laissez vide pour ne pas activer cette condition)"
+"Activer 3D Secure pour les commandes dont le montant est supérieur ou égal "
+"au montant suivant (laissez vide pour ne pas activer cette condition)"
 
-#: class/wc-etransactions-abstract-gateway.php:108
+#: class/wc-etransactions-abstract-gateway.php:111
 msgid "3D Secure"
 msgstr "3D Secure"
 
-#: class/wc-etransactions-abstract-gateway.php:114
+#: class/wc-etransactions-abstract-gateway.php:117
 msgid "Enable 3D Secure"
 msgstr "Activer 3D Secure"
 
-#: class/wc-etransactions-abstract-gateway.php:115
-msgid "You can enable 3D Secure for all orders or depending on following conditions"
+#: class/wc-etransactions-abstract-gateway.php:118
+msgid ""
+"You can enable 3D Secure for all orders or depending on following conditions"
 msgstr ""
 "Vous pouvez activer  3D Secure pour toutes les commandes ou en fonction des "
 "conditions suivantes."
 
-#: class/wc-etransactions-abstract-gateway.php:118
+#: class/wc-etransactions-abstract-gateway.php:121
 msgid "Disabled"
 msgstr "Inactif"
 
-#: class/wc-etransactions-abstract-gateway.php:119
+#: class/wc-etransactions-abstract-gateway.php:122
 msgid "Enabled"
 msgstr "Actif"
 
-#: class/wc-etransactions-abstract-gateway.php:120
+#: class/wc-etransactions-abstract-gateway.php:123
 msgid "Conditional"
 msgstr "Sélectif"
 
-#: class/wc-etransactions-abstract-gateway.php:126
+#: class/wc-etransactions-abstract-gateway.php:129
 msgid ""
-"Enable 3D Secure for order with amount greater or equals to this amount (empty to "
-"ignore this condition)"
+"Enable 3D Secure for order with amount greater or equals to this amount "
+"(empty to ignore this condition)"
 msgstr ""
-"Activer 3D Secure pour les commandes dont le montant est supérieur ou égal au "
-"montant suivant "
+"Activer 3D Secure pour les commandes dont le montant est supérieur ou égal "
+"au montant suivant "
 
-#: class/wc-etransactions-abstract-gateway.php:130
+#: class/wc-etransactions-abstract-gateway.php:133
 msgid "E-Transactions account"
 msgstr "Compte E-Transactions"
 
-#: class/wc-etransactions-abstract-gateway.php:134
+#: class/wc-etransactions-abstract-gateway.php:137
 msgid "Site number"
 msgstr "Numéro du site"
 
-#: class/wc-etransactions-abstract-gateway.php:136
+#: class/wc-etransactions-abstract-gateway.php:139
 msgid "Site number provided by E-Transactions."
 msgstr "Le numéro du site vous est fourni par E-Transactions"
 
-#: class/wc-etransactions-abstract-gateway.php:140
+#: class/wc-etransactions-abstract-gateway.php:143
 msgid "Rank number"
 msgstr "Rang"
 
-#: class/wc-etransactions-abstract-gateway.php:142
+#: class/wc-etransactions-abstract-gateway.php:145
 msgid "Rank number provided by E-Transactions (two last digits)."
 msgstr "Numéro de rang fourni par E-Transactions (deux derniers chiffres)."
 
-#: class/wc-etransactions-abstract-gateway.php:146
+#: class/wc-etransactions-abstract-gateway.php:149
 msgid "Login"
 msgstr "Identifiant"
 
-#: class/wc-etransactions-abstract-gateway.php:148
+#: class/wc-etransactions-abstract-gateway.php:151
 msgid "Internal login provided by E-Transactions."
 msgstr "Votre identifiant vous est fourni par E-Transactions"
 
-#: class/wc-etransactions-abstract-gateway.php:152
+#: class/wc-etransactions-abstract-gateway.php:155
 msgid "HMAC"
 msgstr "HMAC"
 
-#: class/wc-etransactions-abstract-gateway.php:154
+#: class/wc-etransactions-abstract-gateway.php:157
 msgid "Secrete HMAC key to create using the E-Transactions interface."
-msgstr "Clé secrète HMAC à générer puis activer dans votre Back-Office E-Transactions."
+msgstr ""
+"Clé secrète HMAC à générer puis activer dans votre Back-Office E-"
+"Transactions."
 
-#: class/wc-etransactions-abstract-gateway.php:158
+#: class/wc-etransactions-abstract-gateway.php:161
 msgid "Environment"
 msgstr "Environnement"
 
-#: class/wc-etransactions-abstract-gateway.php:160
+#: class/wc-etransactions-abstract-gateway.php:163
 msgid "In test mode your payments will not be sent to the bank."
 msgstr "En mode test, vos paiements ne seront pas envoyé à la banque."
 
-#: class/wc-etransactions-abstract-gateway.php:162
+#: class/wc-etransactions-abstract-gateway.php:165
 msgid "Production"
 msgstr "Production"
 
-#: class/wc-etransactions-abstract-gateway.php:163
+#: class/wc-etransactions-abstract-gateway.php:166
 msgid "Test"
 msgstr "Test"
 
-#: class/wc-etransactions-abstract-gateway.php:168
+#: class/wc-etransactions-abstract-gateway.php:171
 msgid "Technical settings"
 msgstr "Configuration technique"
 
-#: class/wc-etransactions-abstract-gateway.php:172
+#: class/wc-etransactions-abstract-gateway.php:175
 msgid "Allowed IPs "
 msgstr "Adresses IP autorisées"
 
-#: class/wc-etransactions-abstract-gateway.php:174
+#: class/wc-etransactions-abstract-gateway.php:177
 msgid "A coma separated list of E-Transactions IPs."
 msgstr ""
 "IP des serveurs E-Transactions autorisés, séparées par des virgules, pour la "
 "réception des Notifications Instantanées de Paiement."
 
-#: class/wc-etransactions-abstract-gateway.php:178
+#: class/wc-etransactions-abstract-gateway.php:181
 msgid "Debug"
 msgstr "Debug"
 
-#: class/wc-etransactions-abstract-gateway.php:180
+#: class/wc-etransactions-abstract-gateway.php:183
 msgid "Enable some debugging information"
 msgstr "Activer les informations de debuggage"
 
-#: class/wc-etransactions-abstract-gateway.php:212
+#: class/wc-etransactions-abstract-gateway.php:215
 msgid "Customer is redirected to E-Transactions payment page"
 msgstr "Le client est redirigé vers la pages de paiement etransactions"
 
-#: class/wc-etransactions-abstract-gateway.php:237
+#: class/wc-etransactions-abstract-gateway.php:249
 msgid "Back..."
 msgstr "Retour..."
 
-#: class/wc-etransactions-abstract-gateway.php:245
-msgid ""
-"This is a debug view. Click continue to be redirected to E-Transactions payment page."
-msgstr ""
-"Ceci est une vue de debug. Cliquer sur \"continuer\" pour être redirigé vers la page "
-"de paiement E-Transactions."
-
-#: class/wc-etransactions-abstract-gateway.php:249
-msgid ""
-"You will be redirected to the E-Transactions payment page. If not, please use the "
-"button bellow."
-msgstr ""
-"Vous serez redirigé vers la page de paiement E-Transactions. Si ce n'était pas le "
-"cas, merci d'utiliser le bouton ci dessous."
-
 #: class/wc-etransactions-abstract-gateway.php:257
+msgid ""
+"This is a debug view. Click continue to be redirected to E-Transactions "
+"payment page."
+msgstr ""
+"Ceci est une vue de debug. Cliquer sur \"continuer\" pour être redirigé vers "
+"la page de paiement E-Transactions."
+
+#: class/wc-etransactions-abstract-gateway.php:261
+msgid ""
+"You will be redirected to the E-Transactions payment page. If not, please "
+"use the button bellow."
+msgstr ""
+"Vous serez redirigé vers la page de paiement E-Transactions. Si ce n'était "
+"pas le cas, merci d'utiliser le bouton ci dessous."
+
+#: class/wc-etransactions-abstract-gateway.php:269
 msgid "Continue..."
 msgstr "Continuer..."
 
-#: class/wc-etransactions-abstract-gateway.php:310
-#: class/wc-etransactions-abstract-gateway.php:348
+#: class/wc-etransactions-abstract-gateway.php:323
+#: class/wc-etransactions-abstract-gateway.php:359
 msgid "Customer is back from E-Transactions payment page."
 msgstr "Le client revient de la page de paiement E-Transactions"
 
-#: class/wc-etransactions-abstract-gateway.php:311
-#: class/wc-etransactions-abstract-gateway.php:313
+#: class/wc-etransactions-abstract-gateway.php:324
+#: class/wc-etransactions-abstract-gateway.php:326
 msgid "Payment refused by E-Transactions"
 msgstr "Le paiement a été refusé par E-Transactions"
 
-#: class/wc-etransactions-abstract-gateway.php:330
+#: class/wc-etransactions-abstract-gateway.php:342
 msgid "Payment was canceled by user on E-Transactions payment page."
-msgstr "Le paiement a été annulé par le client sur la page de paiement E-Transactions."
+msgstr ""
+"Le paiement a été annulé par le client sur la page de paiement E-"
+"Transactions."
 
-#: class/wc-etransactions-abstract-gateway.php:332
+#: class/wc-etransactions-abstract-gateway.php:344
 msgid "Payment canceled"
 msgstr "Le paiement a été annulé"
 
-#: class/wc-etransactions-abstract-gateway.php:378
-#, php-format
-msgid "IPN call from %s not allowed."
-msgstr "Appel IPN depuis %s non autorisé."
-
-#: class/wc-etransactions-abstract-gateway.php:388
+#: class/wc-etransactions-abstract-gateway.php:401
 #, php-format
 msgid "Missing %s parameter in E-Transactions call"
 msgstr "Le paramêtre %s manque dans l'appel E-Transactions"
 
-#: class/wc-etransactions-abstract-gateway.php:398
-#: class/wc-etransactions-abstract-gateway.php:407
+#: class/wc-etransactions-abstract-gateway.php:411
+#: class/wc-etransactions-abstract-gateway.php:420
 msgid "Payment was authorized and captured by E-Transactions."
 msgstr "Paiement autorisé et capturé par E-Transactions."
 
-#: class/wc-etransactions-abstract-gateway.php:412
+#: class/wc-etransactions-abstract-gateway.php:424
 msgid "Second payment was captured by E-Transactions."
 msgstr "Deuxième paiement capturé par E-Transactions."
 
-#: class/wc-etransactions-abstract-gateway.php:416
+#: class/wc-etransactions-abstract-gateway.php:427
 msgid "Third payment was captured by E-Transactions."
 msgstr "Troisième paiement capturé par E-Transactions."
 
-#: class/wc-etransactions-abstract-gateway.php:420
+#: class/wc-etransactions-abstract-gateway.php:430
 msgid "Invalid three-time payment status"
 msgstr "Statut du paiement en trois fois non valide"
 
-#: class/wc-etransactions-abstract-gateway.php:427 class/wc-etransactions.php:303
+#: class/wc-etransactions-abstract-gateway.php:437
+#: class/wc-etransactions.php:303
 #, php-format
 msgid "Unexpected type %s"
 msgstr "Type %s inattendu"
 
-#: class/wc-etransactions-abstract-gateway.php:437
+#: class/wc-etransactions-abstract-gateway.php:446
 #, php-format
 msgid "Payment was refused by E-Transactions (%s)."
 msgstr "Paiement refusé par E-Transactions (%s)."
 
-#: class/wc-etransactions-encrypt.php:48 class/wc-etransactions-encrypt.php:63
+#: class/wc-etransactions-encrypt.php:60 class/wc-etransactions-encrypt.php:76
 msgid ""
-"For some reason, the key has just been generated. please reenter the HMAC key to "
-"crypt it."
+"For some reason, the key has just been generated. please reenter the HMAC "
+"key to crypt it."
 msgstr ""
-"Pour une raison quelconque, la clé vient d'être générée. Entrez à nouveau la clé "
-"HMAC pour qu'elle soit cryptée."
+"Pour une raison quelconque, la clé vient d'être générée. Entrez à nouveau la "
+"clé HMAC pour qu'elle soit cryptée."
 
 #: class/wc-etransactions-standard-gateway.php:11
 msgid "E-Transactions"
@@ -295,46 +298,55 @@ msgstr "E-Transactions"
 
 #: class/wc-etransactions-standard-gateway.php:29
 #: class/wc-etransactions-threetime-gateway.php:56
+#: class/wc-etransactions-twotime-gateway.php:52
 msgid "Reference:"
 msgstr "Référence"
 
 #: class/wc-etransactions-standard-gateway.php:31
 #: class/wc-etransactions-threetime-gateway.php:58
+#: class/wc-etransactions-twotime-gateway.php:54
 msgid "Country of IP:"
 msgstr "Pays de l'IP:"
 
 #: class/wc-etransactions-standard-gateway.php:33
 #: class/wc-etransactions-threetime-gateway.php:60
+#: class/wc-etransactions-twotime-gateway.php:56
 msgid "Processing date:"
 msgstr "Date de traitement:"
 
 #: class/wc-etransactions-standard-gateway.php:35
 #: class/wc-etransactions-threetime-gateway.php:62
+#: class/wc-etransactions-twotime-gateway.php:58
 msgid "Card numbers:"
 msgstr "Numéros de la carte:"
 
 #: class/wc-etransactions-standard-gateway.php:38
 #: class/wc-etransactions-threetime-gateway.php:65
+#: class/wc-etransactions-twotime-gateway.php:61
 msgid "Validity date:"
 msgstr "Date de validité:"
 
 #: class/wc-etransactions-standard-gateway.php:40
 #: class/wc-etransactions-threetime-gateway.php:90
+#: class/wc-etransactions-twotime-gateway.php:78
 msgid "Transaction:"
 msgstr "Transaction:"
 
 #: class/wc-etransactions-standard-gateway.php:41
 #: class/wc-etransactions-threetime-gateway.php:91
+#: class/wc-etransactions-twotime-gateway.php:79
 msgid "Call:"
 msgstr "Appel:"
 
 #: class/wc-etransactions-standard-gateway.php:42
 #: class/wc-etransactions-threetime-gateway.php:92
+#: class/wc-etransactions-twotime-gateway.php:80
 msgid "Authorization:"
 msgstr "Autorisation:"
 
 #: class/wc-etransactions-standard-gateway.php:44
 #: class/wc-etransactions-threetime-gateway.php:94
+#: class/wc-etransactions-twotime-gateway.php:82
 msgid "Payment information"
 msgstr "Informations sur le paiement"
 
@@ -343,15 +355,18 @@ msgid "E-Transactions 3 times"
 msgstr "E-Transactions paiement en trois fois"
 
 #: class/wc-etransactions-threetime-gateway.php:70
+#: class/wc-etransactions-twotime-gateway.php:66
 msgid "First debit:"
 msgstr "Premier paiement:"
 
 #: class/wc-etransactions-threetime-gateway.php:77
 #: class/wc-etransactions-threetime-gateway.php:86
+#: class/wc-etransactions-twotime-gateway.php:73
 msgid "Not achieved"
 msgstr "Non traité"
 
 #: class/wc-etransactions-threetime-gateway.php:79
+#: class/wc-etransactions-twotime-gateway.php:75
 msgid "Second debit:"
 msgstr "Seconde échéance:"
 
@@ -359,14 +374,21 @@ msgstr "Seconde échéance:"
 msgid "Third debit:"
 msgstr "Troisième échéance:"
 
+#: class/wc-etransactions-twotime-gateway.php:11
+msgid "E-Transactions 2 times"
+msgstr "E-Transactions paiement en deux fois"
+
 #: class/wc-etransactions.php:322
 #, php-format
 msgid "Unexpected 3-D Secure status %s"
 msgstr "Statut 3-D Secure inattendu: %s"
 
-#: class/wc-etransactions.php:524
+#: class/wc-etransactions.php:517
 msgid "E-Transactions not available. Please try again later."
 msgstr "E-Transactions n'est pas disponible. Merci d'essayer plus tard."
+
+#~ msgid "IPN call from %s not allowed."
+#~ msgstr "Appel IPN depuis %s non autorisé."
 
 #~ msgid "Rank number provided by E-Transactions."
 #~ msgstr "Le rang de votre site vous est fourni par E-Transactions"
@@ -384,11 +406,12 @@ msgstr "E-Transactions n'est pas disponible. Merci d'essayer plus tard."
 #~ msgstr "Nombre maximal de commande"
 
 #~ msgid ""
-#~ "Enable 3D Secure for customer with less than this number of orders (empty to "
-#~ "ignore this condition)"
+#~ "Enable 3D Secure for customer with less than this number of orders (empty "
+#~ "to ignore this condition)"
 #~ msgstr ""
-#~ "Activer 3D Secure pour les clients ayant passé moins de  for customer with less "
-#~ "than this number of orders (laisser vide pour ignorer cette condition)"
+#~ "Activer 3D Secure pour les clients ayant passé moins de  for customer "
+#~ "with less than this number of orders (laisser vide pour ignorer cette "
+#~ "condition)"
 
 #~ msgid "TODO"
 #~ msgstr "TODO"

@@ -44,6 +44,8 @@ abstract class WC_Etransactions_Abstract_Gateway extends WC_Payment_Gateway {
         if (!isset($_POST['crypted'])) {
             if (isset($_POST["woocommerce_etransactions_std_hmackey"]))
                 $_POST["woocommerce_etransactions_std_hmackey"] = $crypto->encrypt($_POST["woocommerce_etransactions_std_hmackey"]);
+            if (isset($_POST["woocommerce_etransactions_2x_hmackey"]))
+                $_POST["woocommerce_etransactions_2x_hmackey"] = $crypto->encrypt($_POST["woocommerce_etransactions_2x_hmackey"]);
             else
                 $_POST["woocommerce_etransactions_3x_hmackey"] = $crypto->encrypt($_POST["woocommerce_etransactions_3x_hmackey"]);
             $_POST['crypted'] = true;
