@@ -1,12 +1,21 @@
 <?php
 
-abstract class WC_Etransactions_Abstract_Gateway extends WC_Payment_Gateway {
-
+/**
+ * E-Transactions - Payment Gateway class.
+ *
+ * Extended by individual payment gateways to handle payments.
+ *
+ * @class   WC_Etransactions_Abstract_Gateway
+ * @extends WC_Payment_Gateway
+ */
+abstract class WC_Etransactions_Abstract_Gateway extends WC_Payment_Gateway
+{
     protected $_config;
     protected $_etransactions;
     private $logger;
 
-    public function __construct() {
+    public function __construct()
+    {
         // Logger for debug if needed
         if (WC()->debug === 'yes') {
             $this->logger = WC()->logger();
@@ -24,8 +33,9 @@ abstract class WC_Etransactions_Abstract_Gateway extends WC_Payment_Gateway {
         // $this->title = $this->_config->getTitle();
         // $this->description = $this->_config->getDescription();
 
-        $this->title = apply_filters('title',$this->_config->getTitle());
-        $this->description = apply_filters('description',$this->_config->getDescription());
+        $this->title = apply_filters('title', $this->_config->getTitle());
+        $this->description = apply_filters('description', $this->_config->getDescription());
+        $this->icon = apply_filters(WC_ETRANSACTIONS_PLUGIN, plugin_dir_url(__DIR__) . 'images/') . apply_filters('icon', $this->_config->getIcon());
 
         // Actions
         add_action('woocommerce_update_options_payment_gateways_' . $this->id, array($this, 'process_admin_options'));
@@ -39,20 +49,23 @@ abstract class WC_Etransactions_Abstract_Gateway extends WC_Payment_Gateway {
      * @param  array $field
      * @return void
      */
-    public function process_admin_options() {
+    public function process_admin_options()
+    {
         $crypto = new ETransactionsEncrypt();
         if (!isset($_POST['crypted'])) {
-            if (isset($_POST["woocommerce_etransactions_std_hmackey"]))
+            if (isset($_POST["woocommerce_etransactions_std_hmackey"])) {
                 $_POST["woocommerce_etransactions_std_hmackey"] = $crypto->encrypt($_POST["woocommerce_etransactions_std_hmackey"]);
-            else
+            } else {
                 $_POST["woocommerce_etransactions_3x_hmackey"] = $crypto->encrypt($_POST["woocommerce_etransactions_3x_hmackey"]);
+            }
             $_POST['crypted'] = true;
         }
+
         parent::process_admin_options();
     }
 
-    public function admin_options() {
-
+    public function admin_options()
+    {
         $crypt = new ETransactionsEncrypt();
         $this->settings['hmackey'] = $crypt->decrypt($this->settings['hmackey']);
 
@@ -62,7 +75,8 @@ abstract class WC_Etransactions_Abstract_Gateway extends WC_Payment_Gateway {
     /**
      * Initialise Gateway Settings Form Fields
      */
-    public function init_form_fields() {
+    public function init_form_fields()
+    {
         $defaults = new WC_Etransactions_Config(array(), $this->defaultTitle, $this->defaultDesc);
         $defaults = $defaults->getDefaults();
         $this->form_fields = array();
@@ -77,6 +91,20 @@ abstract class WC_Etransactions_Abstract_Gateway extends WC_Payment_Gateway {
             'type' => 'text',
             'description' => __('This controls the title which the user sees during checkout.', 'woocommerce'),
             'default' => __($defaults['title'], WC_ETRANSACTIONS_PLUGIN),
+        );
+        $allFiles = scandir(plugin_dir_path(__DIR__) . 'images/');
+        $fileList = array();
+        foreach ($allFiles as $id => $file) {
+            if (in_array(explode(".", $file)[1], array('png','jpg','gif','svg'))) {
+                $fileList[$file]=$file;
+            }
+        }
+        $this->form_fields['icon'] = array(
+            'title' => __('Icon file', WC_ETRANSACTIONS_PLUGIN),
+            'type' => 'select',
+            'description' => __('Icon file to be displayed to customers. file are located in: ', WC_ETRANSACTIONS_PLUGIN) . apply_filters(WC_ETRANSACTIONS_PLUGIN, '' . plugin_dir_url(__DIR__) . 'images/'),
+            'default' => __($defaults['icon'], WC_ETRANSACTIONS_PLUGIN),
+            'options' => $fileList,
         );
         $this->form_fields['description'] = array(
             'title' => __('Description', 'woocommerce'),
@@ -106,28 +134,6 @@ abstract class WC_Etransactions_Abstract_Gateway extends WC_Payment_Gateway {
             'type' => 'text',
             'description' => __('Enable this payment method for order with amount greater or equals to this amount (empty to ignore this condition)', WC_ETRANSACTIONS_PLUGIN),
             'default' => $defaults['amount']
-        );
-        $this->form_fields['3ds'] = array(
-            'title' => __('3D Secure', WC_ETRANSACTIONS_PLUGIN),
-            'type' => 'title',
-        );
-        $this->form_fields['3ds_enabled'] = array(
-            'title' => __('Enable/Disable', WC_ETRANSACTIONS_PLUGIN),
-            'type' => 'select',
-            'label' => __('Enable 3D Secure', WC_ETRANSACTIONS_PLUGIN),
-            'description' => __('You can enable 3D Secure for all orders or depending on following conditions', WC_ETRANSACTIONS_PLUGIN),
-            'default' => $defaults['3ds_enabled'],
-            'options' => array(
-                'never' => __('Disabled', WC_ETRANSACTIONS_PLUGIN),
-                'always' => __('Enabled', WC_ETRANSACTIONS_PLUGIN),
-                'conditional' => __('Conditional', WC_ETRANSACTIONS_PLUGIN),
-            ),
-        );
-        $this->form_fields['3ds_amount'] = array(
-            'title' => __('Minimal amount', WC_ETRANSACTIONS_PLUGIN),
-            'type' => 'text',
-            'description' => __('Enable 3D Secure for order with amount greater or equals to this amount (empty to ignore this condition)', WC_ETRANSACTIONS_PLUGIN),
-            'default' => $defaults['3ds_amount']
         );
         $this->form_fields['etransactions_account'] = array(
             'title' => __('E-Transactions account', WC_ETRANSACTIONS_PLUGIN),
@@ -172,7 +178,7 @@ abstract class WC_Etransactions_Abstract_Gateway extends WC_Payment_Gateway {
             'type' => 'title',
         );
         $this->form_fields['ips'] = array(
-            'title' => __('Allowed IPs ', WC_ETRANSACTIONS_PLUGIN),
+            'title' => __('Allowed IPs', WC_ETRANSACTIONS_PLUGIN),
             'type' => 'text',
             'description' => __('A coma separated list of E-Transactions IPs.', WC_ETRANSACTIONS_PLUGIN),
             'default' => $defaults['ips'],
@@ -191,7 +197,8 @@ abstract class WC_Etransactions_Abstract_Gateway extends WC_Payment_Gateway {
      * @access public
      * @return bool
      */
-    public function is_available() {
+    public function is_available()
+    {
         if (!parent::is_available()) {
             return false;
         }
@@ -200,6 +207,7 @@ abstract class WC_Etransactions_Abstract_Gateway extends WC_Payment_Gateway {
             return true;
         }
         $total = WC()->cart->total;
+
         return $total >= $minimal;
     }
 
@@ -209,8 +217,9 @@ abstract class WC_Etransactions_Abstract_Gateway extends WC_Payment_Gateway {
      * @param int $order_id The order ID
      * @return array TODO
      */
-    public function process_payment($orderId) {
-        $order = new WC_Order($orderId);
+    public function process_payment($orderId)
+    {
+        $order = wc_get_order($orderId);
 
         $message = __('Customer is redirected to E-Transactions payment page', WC_ETRANSACTIONS_PLUGIN);
         $this->_etransactions->addOrderNote($order, $message);
@@ -221,8 +230,9 @@ abstract class WC_Etransactions_Abstract_Gateway extends WC_Payment_Gateway {
         );
     }
 
-    public function receipt_page($orderId) {
-        $order = new WC_Order($orderId);
+    public function receipt_page($orderId)
+    {
+        $order = wc_get_order($orderId);
 
         if (!is_multisite()) {
             $urls = array(
@@ -252,11 +262,11 @@ abstract class WC_Etransactions_Abstract_Gateway extends WC_Payment_Gateway {
         $debug = $this->_config->isDebug();
         ?>
         <form id="pbxep_form" method="post" action="<?php echo esc_url($url); ?>" enctype="application/x-www-form-urlencoded">
-            <?php if ($debug): ?>
+            <?php if ($debug) : ?>
                 <p>
                     <?php echo __('This is a debug view. Click continue to be redirected to E-Transactions payment page.', WC_ETRANSACTIONS_PLUGIN); ?>
                 </p>
-            <?php else: ?>
+            <?php else : ?>
                 <p>
                     <?php echo __('You will be redirected to the E-Transactions payment page. If not, please use the button bellow.', WC_ETRANSACTIONS_PLUGIN); ?>
                 </p>
@@ -269,23 +279,24 @@ abstract class WC_Etransactions_Abstract_Gateway extends WC_Payment_Gateway {
             <center><button><?php echo __('Continue...', WC_ETRANSACTIONS_PLUGIN); ?></button></center>
             <?php
             $type = $debug ? 'text' : 'hidden';
-            foreach ($params as $name => $value):
+            foreach ($params as $name => $value) {
                 $name = esc_attr($name);
                 $value = esc_attr($value);
-                if ($debug):
+                if ($debug) {
                     echo '<p><label for="' . $name . '">' . $name . '</label>';
-                endif;
+                }
                 echo '<input type="' . $type . '" id="' . $name . '" name="' . $name . '" value="' . $value . '" />';
-                if ($debug):
+                if ($debug) {
                     echo '</p>';
-                endif;
-            endforeach;
+                }
+            }
             ?>
         </form>
         <?php
     }
 
-    public function api_call() {
+    public function api_call()
+    {
         if (!isset($_GET['status'])) {
             header('Status: 404 Not found', true, 404);
             die();
@@ -314,7 +325,8 @@ abstract class WC_Etransactions_Abstract_Gateway extends WC_Payment_Gateway {
         }
     }
 
-    public function on_payment_failed() {
+    public function on_payment_failed()
+    {
         try {
             $params = $this->_etransactions->getParams();
 
@@ -325,6 +337,7 @@ abstract class WC_Etransactions_Abstract_Gateway extends WC_Payment_Gateway {
                 $order->cancel_order($message);
                 $message = __('Payment refused by E-Transactions', WC_ETRANSACTIONS_PLUGIN);
                 $this->_etransactions->addCartErrorMessage($message);
+                $order->update_status('failed', $message);
             }
         } catch (Exception $e) {
             // Ignore
@@ -333,7 +346,8 @@ abstract class WC_Etransactions_Abstract_Gateway extends WC_Payment_Gateway {
         $this->redirectToCheckout();
     }
 
-    public function on_payment_canceled() {
+    public function on_payment_canceled()
+    {
         try {
             $params = $this->_etransactions->getParams();
 
@@ -343,6 +357,7 @@ abstract class WC_Etransactions_Abstract_Gateway extends WC_Payment_Gateway {
                 $order->cancel_order($message);
                 $message = __('Payment canceled', WC_ETRANSACTIONS_PLUGIN);
                 $this->_etransactions->addCartErrorMessage($message);
+                $order->update_status('failed', $message);
             }
         } catch (Exception $e) {
             // Ignore
@@ -351,7 +366,8 @@ abstract class WC_Etransactions_Abstract_Gateway extends WC_Payment_Gateway {
         $this->redirectToCheckout();
     }
 
-    public function on_payment_succeed() {
+    public function on_payment_succeed()
+    {
         try {
             $params = $this->_etransactions->getParams();
             if ($params !== false) {
@@ -370,11 +386,11 @@ abstract class WC_Etransactions_Abstract_Gateway extends WC_Payment_Gateway {
         $this->redirectToCheckout();
     }
 
-    public function on_ipn() {
+    public function on_ipn()
+    {
         global $wpdb;
 
         try {
-
             $params = $this->_etransactions->getParams();
 
             if ($params === false) {
@@ -384,16 +400,17 @@ abstract class WC_Etransactions_Abstract_Gateway extends WC_Payment_Gateway {
             $order = $this->_etransactions->untokenizeOrder($params['reference']);
 
             // IP not allowed
-            /* 				$allowedIps = $this->_config->getAllowedIps();
-              $currentIp = $this->_etransactions->getClientIp();
-              if (!in_array($currentIp, $allowedIps)) {
-              $message = __('IPN call from %s not allowed.', WC_ETRANSACTIONS_PLUGIN);
-              $message = sprintf($message, $currentIp);
-              $this->_etransactions->addOrderNote($order, $message);
-              throw new Exception($message);
-              }
-              //removed by JC: no need for IP checking anymore.
-             */
+            /*
+            $allowedIps = $this->_config->getAllowedIps();
+            $currentIp = $this->_etransactions->getClientIp();
+            if (!in_array($currentIp, $allowedIps)) {
+                $message = __('IPN call from %s not allowed.', WC_ETRANSACTIONS_PLUGIN);
+                $message = sprintf($message, $currentIp);
+                $this->_etransactions->addOrderNote($order, $message);
+                throw new Exception($message);
+            }
+            // removed by JC: no need for IP checking anymore.
+            */
             // Check required parameters
             $requiredParams = array('amount', 'transaction', 'error', 'reference', 'sign', 'date', 'time');
             foreach ($requiredParams as $requiredParam) {
@@ -420,10 +437,10 @@ abstract class WC_Etransactions_Abstract_Gateway extends WC_Payment_Gateway {
                             $this->_etransactions->addOrderNote($order, __('Payment was authorized and captured by E-Transactions.', WC_ETRANSACTIONS_PLUGIN));
                             $order->payment_complete($params['transaction']);
                             $this->_etransactions->addOrderPayment($order, 'first_payment', $params);
-                        } else if (!in_array('second_payment', $done)) {
+                        } elseif (!in_array('second_payment', $done)) {
                             $this->_etransactions->addOrderNote($order, __('Second payment was captured by E-Transactions.', WC_ETRANSACTIONS_PLUGIN));
                             $this->_etransactions->addOrderPayment($order, 'second_payment', $params);
-                        } else if (!in_array('third_payment', $done)) {
+                        } elseif (!in_array('third_payment', $done)) {
                             $this->_etransactions->addOrderNote($order, __('Third payment was captured by E-Transactions.', WC_ETRANSACTIONS_PLUGIN));
                             $this->_etransactions->addOrderPayment($order, 'third_payment', $params);
                         } else {
@@ -439,26 +456,32 @@ abstract class WC_Etransactions_Abstract_Gateway extends WC_Payment_Gateway {
                         $this->_etransactions->addOrderNote($order, $message);
                         throw new Exception($message);
                 }
-            }
-
-            // Payment refused
-            else {
+            } else {
+                // Payment refused
                 $message = __('Payment was refused by E-Transactions (%s).', WC_ETRANSACTIONS_PLUGIN);
                 $error = $this->_etransactions->toErrorMessage($params['error']);
                 $message = sprintf($message, $error);
+                $this->_etransactions->addOrderPayment($order, 'failed_payment', $params);
                 $this->_etransactions->addOrderNote($order, $message);
             }
         } catch (Exception $e) {
-			if (WC()->debug === 'yes') {
-				$this->logger->add("etransactions", $e->getMessage());
-			}
+            if (WC()->debug === 'yes') {
+                $this->logger->add("etransactions", $e->getMessage());
+            }
         }
     }
 
-    public function redirectToCheckout() {
+    public function redirectToCheckout()
+    {
         wp_redirect(WC()->cart->get_cart_url());
         die();
     }
 
-    public abstract function showDetails($orderId);
+    public function checkCrypto()
+    {
+        $crypt = new ETransactionsEncrypt();
+        return $crypt->decrypt($this->settings['hmackey']);
+    }
+
+    abstract public function showDetails($orderId);
 }

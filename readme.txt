@@ -1,15 +1,14 @@
-=== E-Transactions WooCommerce Payment Gateway ===
+﻿=== E-Transactions WooCommerce Payment Gateway ===
 Contributors: E-Transactions
 Donate link: none
 Tags: Payment Gateway, Orders, woocommerce, e-commerce, payment, E-Transactions
-Requires at least: 4.6
-Requires PHP: 5.6.0
-Tested up to: 5.2.4
-Stable tag: 0.9.8.6
+Requires at least: 3.0.1
+Tested up to: 5.7
+Stable tag: 0.9.9.9.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 WC requires at least: 2.6
-WC tested up to: 3.7.1
+WC tested up to: 5.1.0
 This plugin is a E-Transactions payment gateway for WooCommerce 2.x
 
 == Description ==
@@ -23,7 +22,7 @@ plugin actions in wordpress:
 this plugin offers an admin panel from the order section to the settings of Woocommerce.
 it adds payment information to the orders details and changes the status of orders (upon reception of an IPN, see below.) and adds payment means on the checkout page.
 
-This plugin takes information from the order and creates a form containing the details of the payment to be made, including parameters configured in the admin panel of the module that identify the mechant. 
+This plugin takes information from the order and creates a form containing the details of the payment to be made, including parameters configured in the admin panel of the module that identify the mechant.
 
 The plugin checks for availability of the E-Transactions platform, through a call to our servers.
 It then submits with javascript the form to the first available server.
@@ -51,8 +50,8 @@ The HMAC key is generated on etransactions server through your etransactions bac
 
 = My orders are not validated, even though the payment went through ? =
 
-The oder paid with E-Transactions is only validated upon rectpion of a positive Instant Payment Notification (IPN) this IPN is authenticated with the filter on the IP address, if the IP is somewhow changed, the plugin will give a 500 HTTP error. 
-Avoid Maintenance mode, or allow E-Transactions IP to go through (194.2.122.158,195.25.7.166,195.101.99.76). If the WordPress Installation is in maintenance mode, the E-Transactions server will not be able to contact it. 
+The oder paid with E-Transactions is only validated upon rectpion of a positive Instant Payment Notification (IPN) this IPN is authenticated with the filter on the IP address, if the IP is somewhow changed, the plugin will give a 500 HTTP error.
+Avoid Maintenance mode, or allow E-Transactions IP to go through (194.2.122.158,195.25.7.166,195.101.99.76). If the WordPress Installation is in maintenance mode, the E-Transactions server will not be able to contact it.
 
 = Something is not working for me, how can i get help ? =
 
@@ -68,8 +67,26 @@ Contact [E-Transactions WordPress Support](mailto:support@e-transactions.fr "Wor
 6. Once successfully processed, the Payment transaction details appear in the order details
 
 == Changelog ==
+= 0.9.9.9.3 =
+Force 3DSv2 for all cards
+
+= 0.9.9.9.2 =
+Add 3DSv2 support
+
+= 0.9.8.9 =
+various fixes and alignments
+
+= 0.9.8.9 =
+shortening long api names for plugin
+
+= 0.9.8.8 =
+fixing Woocommerce active detection mechanism
+
+= 0.9.8.7 =
+fixing mcrypt deprecation when goin with php > 7.1.x + translations and adding icon for payment means
+
 = 0.9.8.6 =
-Fixing various bugs: transaction/call mixup, Minimum amount label.
+Correcting transaction/call mixup and translation of minimal amount label.
 
 = 0.9.8.5 =
 adding HTTP/2 compatibility.
@@ -106,15 +123,15 @@ Added compatibility for folder-based wordpress multi-site.
 Removed IPN IP checking
 
 = 0.9.6.7 =
-Changed: 
-only rely on the $_SERVER data to check for the IP address: 
+Changed:
+only rely on the $_SERVER data to check for the IP address:
 this solves the non reception of the IPN  (error 500)
 
 = 0.9.6.6 =
-Second release: 
-Fixed: 
+Second release:
+Fixed:
 -Missing table now created ok.
--"Syntax error: Unexpected token < " message when checking out, 
+-"Syntax error: Unexpected token < " message when checking out,
 -Use of deprecated functions to get pages url: now we use endpoints.
 
 Added	:
