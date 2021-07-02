@@ -254,6 +254,26 @@ class WC_Etransactions
     }
 
     /**
+     * Retrieve the language value for PBX_LANG parameter
+     *
+     * @return string
+     */
+    protected function getPbxLang()
+    {
+        // Choose correct language
+        $lang = get_locale();
+        if (!empty($lang)) {
+            $lang = preg_replace('#_.*$#', '', $lang);
+        }
+        $languages = $this->getLanguages();
+        if (!array_key_exists($lang, $languages)) {
+            $lang = 'default';
+        }
+
+        return $languages[$lang];
+    }
+
+    /**
      * @params WC_Order $order Order
      * @params string $type Type of payment (standard or threetime)
      * @params array $additionalParams Additional parameters
@@ -264,6 +284,11 @@ class WC_Etransactions
 
         // Parameters
         $values = array();
+
+        // Retrieve the current card that was forced on the order (if any)
+        $card = $this->_config->getOrderCard($order);
+        // Retrieve the tokenized card (if any)
+        $tokenizedCard = $this->_config->getTokenizedCard($order);
 
         // Merchant information
         $values['PBX_SITE'] = $this->_config->getSite();
@@ -283,12 +308,28 @@ class WC_Etransactions
         switch ($type) {
             case 'standard':
                 $delay = $this->_config->getDelay();
-                if ($delay > 0) {
-                    if ($delay > 7) {
-                        $delay = 7;
-                    }
-                    $values['PBX_DIFF'] = sprintf('%02d', $delay);
+
+                // Debit on specific order status, force authorization only
+                if ($this->_config->isPremium()
+                && $delay === WC_Etransactions_Config::ORDER_STATE_DELAY) {
+                    // Author only
+                    $values['PBX_AUTOSEULE'] = 'O';
                 }
+
+                // Classic delay
+                if ($delay != WC_Etransactions_Config::ORDER_STATE_DELAY) {
+                    // The current card is not able to handle PBX_DIFF parameter
+                    if (!empty($card->id_card) && empty($card->debit_differe)) {
+                        // Reset the delay
+                        $delay = 0;
+                    }
+                    // Delay must be between 0 & 7
+                    $delay = max(0, min($delay, 7));
+                    if ($delay > 0) {
+                        $values['PBX_DIFF'] = sprintf('%02d', $delay);
+                    }
+                }
+
                 $values['PBX_TOTAL'] = sprintf('%03d', round($orderAmount * $amountScale));
                 break;
 
@@ -321,29 +362,45 @@ class WC_Etransactions
         $values['PBX_RETOUR'] = 'M:M;R:R;T:T;A:A;B:B;C:C;D:D;E:E;F:F;G:G;I:I;J:J;N:N;O:O;P:P;Q:Q;S:S;W:W;Y:Y;v:v;K:K';
         $values['PBX_RUF1'] = 'POST';
 
+        // Allow tokenization ?
+        $allowTokenization = (bool)get_post_meta($order->get_id(), $order->get_payment_method() . '_allow_tokenization', true);
+        if (empty($tokenizedCard) && $this->_config->allowOneClickPayment($card) && $allowTokenization) {
+            $values['PBX_REFABONNE'] = wp_hash($order->get_id() . '-' . $order->get_customer_id());
+            $values['PBX_RETOUR'] = 'U:U;' . $values['PBX_RETOUR'];
+        }
+
+        // Add tokenized card information
+        if (!empty($tokenizedCard)) {
+            $cardToken = explode('|', $tokenizedCard->get_token());
+            $values['PBX_REFABONNE'] = $cardToken[0];
+            $values['PBX_TOKEN'] = $cardToken[1];
+            $values['PBX_DATEVAL'] = sprintf('%02d', $tokenizedCard->get_expiry_month()) . sprintf('%02d', substr($tokenizedCard->get_expiry_year(), 2, 2));
+        }
+
         // 3DSv2 parameters
         $values['PBX_SHOPPINGCART'] = $this->getXmlShoppingCartInformation($order);
         $values['PBX_BILLING'] = $this->getXmlBillingInformation($order);
 
         // Choose correct language
-        $lang = get_locale();
-        if (!empty($lang)) {
-            $lang = preg_replace('#_.*$#', '', $lang);
+        $values['PBX_LANGUE'] = $this->getPbxLang();
+        // Prevent PBX_SOURCE to be sent when card type is LIMONETIK
+        if (empty($card->type_payment) || $card->type_payment != 'LIMONETIK') {
+            $values['PBX_SOURCE'] = 'RWD';
         }
-        $languages = $this->getLanguages();
-        if (!array_key_exists($lang, $languages)) {
-            $lang = 'default';
-        }
-        $values['PBX_LANGUE'] = $languages[$lang];
 
-        // Choose page format depending on browser/devise
-        if ($this->isMobile()) {
-            $values['PBX_SOURCE'] = 'XHTML';
+        if ($this->_config->getPaymentUx($order) == WC_Etransactions_Config::PAYMENT_UX_SEAMLESS) {
+            $values['PBX_THEME_CSS'] = 'frame-puma.css';
         }
 
         // Misc.
         $values['PBX_TIME'] = date('c');
         $values['PBX_HASH'] = strtoupper($this->_config->getHmacAlgo());
+
+        // Specific parameter to set a specific payment method
+        if (!empty($card->id_card)) {
+            $values['PBX_TYPEPAIEMENT'] = $card->type_payment;
+            $values['PBX_TYPECARTE'] = $card->type_card;
+        }
 
         // Adding additionnal informations
         $values = array_merge($values, $additionalParams);
@@ -360,6 +417,88 @@ class WC_Etransactions
         return $values;
     }
 
+    /**
+     * Build parameters in order to create a token for a card
+     *
+     * @param object $card
+     * @param array $additionalParams
+     * @return void
+     */
+    public function buildTokenizationSystemParams($card = null, array $additionalParams = array())
+    {
+        global $wpdb;
+
+        // Parameters
+        $values = array();
+
+        // Merchant information
+        $values['PBX_SITE'] = $this->_config->getSite();
+        $values['PBX_RANG'] = $this->_config->getRank();
+        $values['PBX_IDENTIFIANT'] = $this->_config->getIdentifier();
+        $values['PBX_VERSION'] = WC_ETRANSACTIONS_PLUGIN . "-" . WC_ETRANSACTIONS_VERSION . "_WP" . get_bloginfo('version') . "_WC" . WC()->version;
+
+        // "Order" information
+        $apmId = uniqid();
+        $values['PBX_PORTEUR'] = $this->getBillingEmail(WC()->customer);
+        $values['PBX_REFABONNE'] = wp_hash($apmId . '-' . get_current_user_id());
+        $values['PBX_DEVISE'] = $this->getCurrency();
+        $values['PBX_CMD'] = 'APM-' . get_current_user_id() . '-' . $apmId;
+
+        // Amount
+        $orderAmount = floatval(1.0);
+        $amountScale = pow(10, $this->_currencyDecimals[$values['PBX_DEVISE']]);
+        // Author only
+        $values['PBX_AUTOSEULE'] = 'O';
+        $values['PBX_TOTAL'] = sprintf('%03d', round($orderAmount * $amountScale));
+        $values['PBX_RETOUR'] = 'U:U;M:M;R:R;T:T;A:A;B:B;C:C;D:D;E:E;F:F;G:G;I:I;J:J;N:N;O:O;P:P;Q:Q;S:S;W:W;Y:Y;v:v;K:K';
+        $values['PBX_RUF1'] = 'POST';
+
+        // 3DSv2 parameters
+        $values['PBX_SHOPPINGCART'] = $this->getXmlShoppingCartInformation();
+        $values['PBX_BILLING'] = $this->getXmlBillingInformation(WC()->customer);
+
+        // Choose correct language
+        $values['PBX_LANGUE'] = $this->getPbxLang();
+        // Prevent PBX_SOURCE to be sent when card type is LIMONETIK
+        if (empty($card->type_payment) || $card->type_payment != 'LIMONETIK') {
+            $values['PBX_SOURCE'] = 'RWD';
+        }
+
+        // Misc.
+        $values['PBX_TIME'] = date('c');
+        $values['PBX_HASH'] = strtoupper($this->_config->getHmacAlgo());
+
+        // Specific parameter to set a specific payment method
+        if (!empty($card->id_card)) {
+            $values['PBX_TYPEPAIEMENT'] = $card->type_payment;
+            $values['PBX_TYPECARTE'] = $card->type_card;
+        }
+
+        // Adding additionnal informations
+        $values = array_merge($values, $additionalParams);
+
+        // Sort parameters for simpler debug
+        ksort($values);
+
+        // Sign values
+        $sign = $this->signValues($values);
+
+        // Hash HMAC
+        $values['PBX_HMAC'] = $sign;
+
+        return $values;
+    }
+
+    /**
+     * Retrieve keys used for the mapping
+     *
+     * @return array
+     */
+    public function getParametersKeys()
+    {
+        return array_keys($this->_resultMapping);
+    }
+
     public function convertParams(array $params)
     {
         $result = array();
@@ -372,14 +511,22 @@ class WC_Etransactions
         return $result;
     }
 
-    public function getBillingEmail(WC_Order $order)
+    public function getBillingEmail($object)
     {
-        return $order->get_billing_email();
+        if (!is_a($object, 'WC_Order') && !is_a($object, 'WC_Customer')) {
+            throw new Exception('Invalid object on getXmlBillingInformation');
+        }
+
+        return $object->get_billing_email();
     }
 
-    public function getBillingName(WC_Order $order)
+    public function getBillingName($object)
     {
-        $name = $order->get_billing_first_name().' '.$order->get_billing_last_name();
+        if (!is_a($object, 'WC_Order') && !is_a($object, 'WC_Customer')) {
+            throw new Exception('Invalid object on getXmlBillingInformation');
+        }
+
+        $name = $object->get_billing_first_name().' '.$object->get_billing_last_name();
         $name = remove_accents($name);
         $name = trim(preg_replace('/[^-. a-zA-Z0-9]/', '', $name));
         return $name;
@@ -464,18 +611,22 @@ class WC_Etransactions
     /**
      * Generate XML value for PBX_BILLING parameter
      *
-     * @param WC_Order $order
+     * @param WC_Order|WC_Customer $object
      * @return string
      */
-    public function getXmlBillingInformation(WC_Order $order)
+    public function getXmlBillingInformation($object)
     {
-        $firstName = $this->formatTextValue($order->get_billing_first_name(), 'ANP', 30);
-        $lastName = $this->formatTextValue($order->get_billing_last_name(), 'ANP', 30);
-        $addressLine1 = $this->formatTextValue($order->get_billing_address_1(), 'ANS', 50);
-        $addressLine2 = $this->formatTextValue($order->get_billing_address_2(), 'ANS', 50);
-        $zipCode = $this->formatTextValue($order->get_billing_postcode(), 'ANS', 16);
-        $city = $this->formatTextValue($order->get_billing_city(), 'ANS', 50);
-        $countryCode = (int)WC_Etransactions_Iso3166_Country::getNumericCode($order->get_billing_country());
+        if (!is_a($object, 'WC_Order') && !is_a($object, 'WC_Customer')) {
+            throw new Exception('Invalid object on getXmlBillingInformation');
+        }
+
+        $firstName = $this->formatTextValue($object->get_billing_first_name(), 'ANP', 30);
+        $lastName = $this->formatTextValue($object->get_billing_last_name(), 'ANP', 30);
+        $addressLine1 = $this->formatTextValue($object->get_billing_address_1(), 'ANS', 50);
+        $addressLine2 = $this->formatTextValue($object->get_billing_address_2(), 'ANS', 50);
+        $zipCode = $this->formatTextValue($object->get_billing_postcode(), 'ANS', 16);
+        $city = $this->formatTextValue($object->get_billing_city(), 'ANS', 50);
+        $countryCode = (int)WC_Etransactions_Iso3166_Country::getNumericCode($object->get_billing_country());
 
         $xml = sprintf(
             '<?xml version="1.0" encoding="utf-8"?><Billing><Address><FirstName>%s</FirstName><LastName>%s</LastName><Address1>%s</Address1><Address2>%s</Address2><ZipCode>%s</ZipCode><City>%s</City><CountryCode>%d</CountryCode></Address></Billing>',
@@ -497,14 +648,19 @@ class WC_Etransactions
      * @param WC_Order $order
      * @return string
      */
-    public function getXmlShoppingCartInformation(WC_Order $order)
+    public function getXmlShoppingCartInformation(WC_Order $order = null)
     {
         $totalQuantity = 0;
-        foreach ($order->get_items() as $item) {
-            $totalQuantity += (int)$item->get_quantity();
+        if (!empty($order)) {
+            foreach ($order->get_items() as $item) {
+                $totalQuantity += (int)$item->get_quantity();
+            }
+        } else {
+            $totalQuantity = 1;
         }
         // totalQuantity must be less or equal than 99
-        $totalQuantity = min($totalQuantity, 99);
+        // totalQuantity must be greater or equal than 1
+        $totalQuantity = max(1, min($totalQuantity, 99));
 
         return sprintf('<?xml version="1.0" encoding="utf-8"?><shoppingcart><total><totalQuantity>%d</totalQuantity></total></shoppingcart>', $totalQuantity);
     }
@@ -559,6 +715,27 @@ class WC_Etransactions
         return $wpdb->get_row($sql);
     }
 
+    /**
+     * Check if the is an existing transaction for a specific order
+     *
+     * @param int $orderId
+     * @param string $paymentType
+     * @return boolean
+     */
+    public function hasOrderPayment($orderId, $paymentType = null)
+    {
+        global $wpdb;
+        $sql = 'select COUNT(*) from '.$wpdb->prefix.'wc_etransactions_payment where order_id = %d';
+        if (!empty($paymentType)) {
+            $sql .= ' AND `type` = %s';
+            $sql = $wpdb->prepare($sql, $orderId, $paymentType);
+        } else {
+            $sql = $wpdb->prepare($sql, $orderId);
+        }
+
+        return ((int)$wpdb->get_var($sql) > 0);
+    }
+
     public function getParams()
     {
         // Retrieves data
@@ -589,6 +766,24 @@ class WC_Etransactions
                 $res = (boolean) openssl_verify($matches[1], $signature, $pubkey);
             }
 
+            // IPN LIMONETIK case, we have to remove some args
+            if (!$res) {
+                // Remove any extra parameter that is not useful (prevent wrong signature too)
+                $queryArgs = array();
+                parse_str($data, $queryArgs);
+                foreach (array_diff(array_keys($queryArgs), $this->getParametersKeys()) as $queryKey) {
+                    unset($queryArgs[$queryKey]);
+                }
+                // Rebuild the data query string
+                $data = http_build_query($queryArgs, '?', '&', PHP_QUERY_RFC3986);
+                preg_match('#^(.*)&K=(.*)$#', $data, $matches);
+
+                // Check signature
+                $signature = base64_decode(urldecode($matches[2]));
+                $pubkey = file_get_contents(dirname(__FILE__).'/pubkey.pem');
+                $res = (boolean) openssl_verify($matches[1], $signature, $pubkey);
+            }
+
             if (!$res) {
                 $message = 'An unexpected error in E-Transactions call has occured: invalid signature.';
                 throw new Exception(__($message, WC_ETRANSACTIONS_PLUGIN));
@@ -608,9 +803,9 @@ class WC_Etransactions
         return $params;
     }
 
-    public function getSystemUrl()
+    public function getSystemUrl(WC_Order $order = null)
     {
-        $urls = $this->_config->getSystemUrls();
+        $urls = $this->_config->getSystemUrls($order);
         if (empty($urls)) {
             $message = 'Missing URL for E-Transactions system in configuration';
             throw new Exception(__($message, WC_ETRANSACTIONS_PLUGIN));
@@ -716,5 +911,39 @@ class WC_Etransactions
         }
 
         return $order;
+    }
+
+    /**
+     * Retrieve the customer ID from the transaction reference
+     * Use for the "Add payment method" action (APM)
+     *
+     * @param string $reference
+     * @return int the customer ID
+     */
+    public function untokenizeCustomerId($reference)
+    {
+        $parts = explode('-', $reference);
+        if (count($parts) < 3) {
+            throw new Exception(sprintf(__('Invalid decrypted reference "%s"', WC_ETRANSACTIONS_PLUGIN), $reference));
+        }
+
+        return (int)$parts[1];
+    }
+
+    /**
+     * Retrieve the APM unique ID from the transaction reference
+     * Use for the "Add payment method" action (APM)
+     *
+     * @param string $reference
+     * @return int the APM ID
+     */
+    public function untokenizeApmId($reference)
+    {
+        $parts = explode('-', $reference);
+        if (count($parts) < 3) {
+            throw new Exception(sprintf(__('Invalid decrypted reference "%s"', WC_ETRANSACTIONS_PLUGIN), $reference));
+        }
+
+        return (int)$parts[2];
     }
 }
