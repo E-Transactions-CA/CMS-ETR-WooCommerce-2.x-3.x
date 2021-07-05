@@ -10,19 +10,17 @@
  */
 class WC_E3Gw extends WC_Etransactions_Abstract_Gateway
 {
-    protected $defaultTitle = 'Secured 3 times payment by Credit Agricole';
-    protected $defaultDesc = 'Choose your mean of payment directly on secured payment page of Credit Agricole';
+    protected $defaultTitle = 'E-Transactions 3 times payment';
+    protected $defaultDesc = 'xxxx';
     protected $type = 'threetime';
 
     public function __construct()
     {
         // Some properties
         $this->id = 'etransactions_3x';
-        $this->method_title = __('Credit Agricole 3 times', WC_ETRANSACTIONS_PLUGIN);
-        $this->originalTitle = $this->title = __('Secured 3 times payment by Credit Agricole', WC_ETRANSACTIONS_PLUGIN);
-        $this->defaultDesc = __('Choose your mean of payment directly on secured payment page of Credit Agricole', WC_ETRANSACTIONS_PLUGIN);
+        $this->method_title = __('E-Transactions 3 times', WC_ETRANSACTIONS_PLUGIN);
         $this->has_fields = false;
-        $this->icon = 'CB.svg';
+        $this->icon = '3xcbvisamcecb.png';
         //$this->icon = 'TODO';
 
         parent::__construct();
@@ -81,13 +79,6 @@ class WC_E3Gw extends WC_Etransactions_Abstract_Gateway
             $rows[] = $this->_showDetailRow(__('Country of IP:', WC_ETRANSACTIONS_PLUGIN), $data['ip']);
         }
         $rows[] = $this->_showDetailRow(__('Processing date:', WC_ETRANSACTIONS_PLUGIN), preg_replace('/^([0-9]{2})([0-9]{2})([0-9]{4})$/', '$1/$2/$3', $data['date'])." - ".$data['time']);
-        if (isset($data['cardType'])) {
-            $originalCardType = $cardType = strtoupper($data['cardType']);
-            if (in_array($cardType, array('VISA', 'MASTERCARD', 'EUROCARD_MASTERCARD', 'CB'))) {
-                $cardType = 'CB';
-            }
-            $rows[] = $this->_showDetailRow(__('Card type:', WC_ETRANSACTIONS_PLUGIN), '<img title="'. $originalCardType .'" alt="'. $originalCardType .'" src="' . apply_filters(WC_ETRANSACTIONS_PLUGIN, plugin_dir_url(__DIR__) . 'cards/') . $cardType . '.svg" />');
-        }
         if (isset($data['firstNumbers']) && isset($data['lastNumbers'])) {
             $rows[] = $this->_showDetailRow(__('Card numbers:', WC_ETRANSACTIONS_PLUGIN), $data['firstNumbers'].'...'.$data['lastNumbers']);
         }

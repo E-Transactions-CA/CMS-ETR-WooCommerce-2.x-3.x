@@ -3,12 +3,21 @@ Contributors: E-Transactions
 Donate link: none
 Tags: Payment Gateway, Orders, woocommerce, e-commerce, payment, E-Transactions
 Requires at least: 3.0.1
+<<<<<<< HEAD
 Tested up to: 5.7.2
 Stable tag: 1.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 WC requires at least: 2.6
 WC tested up to: 5.4.1
+=======
+Tested up to: 5.7
+Stable tag: 0.9.9.9.3
+License: GPLv2 or later
+License URI: http://www.gnu.org/licenses/gpl-2.0.html
+WC requires at least: 2.6
+WC tested up to: 5.1.0
+>>>>>>> parent of 97d8df9 (pushing version 1.0)
 This plugin is a E-Transactions payment gateway for WooCommerce 2.x
 
 == Description ==
@@ -67,6 +76,7 @@ Contact [E-Transactions WordPress Support](mailto:support@e-transactions.fr "Wor
 6. Once successfully processed, the Payment transaction details appear in the order details
 
 == Changelog ==
+<<<<<<< HEAD
 = 1.0 =
 -Up2pay branding & Adding many features to the plugin:
 -iFrame integration
@@ -78,6 +88,8 @@ one can have 2 very different settings for both modes and review settings,
 without changing the actual working mode for the website.
 
 == Changelog ==
+=======
+>>>>>>> parent of 97d8df9 (pushing version 1.0)
 = 0.9.9.9.3 =
 Force 3DSv2 for all cards
 

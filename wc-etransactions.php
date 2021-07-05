@@ -2,7 +2,7 @@
 /**
  * Plugin Name: E-Transactions
  * Description: E-Transactions gateway payment plugins for WooCommerce
- * Version: 1.0
+ * Version: 0.9.9.9.3
  * Author: E-Transactions
  * Author URI: http://www.e-transactions.fr
  * Text Domain: wc-etransactions
@@ -40,9 +40,8 @@ if (defined('WC_ETRANSACTIONS_PLUGIN')) {
     die(__('Previous plugin already installed. deactivate the previous one first.', WC_ETRANSACTIONS_PLUGIN));
 }
 defined('WC_ETRANSACTIONS_PLUGIN') or define('WC_ETRANSACTIONS_PLUGIN', 'wc-etransactions');
-defined('WC_ETRANSACTIONS_VERSION') or define('WC_ETRANSACTIONS_VERSION', '1.0');
+defined('WC_ETRANSACTIONS_VERSION') or define('WC_ETRANSACTIONS_VERSION', '0.9.9.9.3');
 defined('WC_ETRANSACTIONS_KEY_PATH') or define('WC_ETRANSACTIONS_KEY_PATH', ABSPATH . '/kek.php');
-defined('WC_ETRANSACTIONS_PLUGIN_URL') or define('WC_ETRANSACTIONS_PLUGIN_URL', plugin_dir_url(__FILE__));
 
 function wc_etransactions_installation()
 {
@@ -55,82 +54,18 @@ function wc_etransactions_installation()
         die();
     }
     if ($installed_ver != WC_ETRANSACTIONS_VERSION) {
-        require_once(ABSPATH.'wp-admin/includes/upgrade.php');
-        $sql = "CREATE TABLE `{$wpdb->prefix}wc_etransactions_payment` (
+        $tableName = $wpdb->prefix.'wc_etransactions_payment';
+        $sql = "CREATE TABLE $tableName (
              id int not null auto_increment,
              order_id bigint not null,
-             type enum('capture', 'authorization', 'first_payment', 'second_payment', 'third_payment') not null,
+             type enum('capture', 'first_payment', 'second_payment', 'third_payment') not null,
              data varchar(2048) not null,
              KEY order_id (order_id),
-             PRIMARY KEY (id));";
+             PRIMARY KEY  (id))";
 
-        $sql .= "CREATE TABLE `{$wpdb->prefix}wc_etransactions_cards` (
-            `id_card` int(2) not null auto_increment PRIMARY KEY,
-            `payment_method` varchar(30) not null,
-            `env` enum('test', 'production') not null,
-            `user_xp` enum('redirect', 'seamless') null,
-            `type_payment` varchar(12) not null,
-            `type_card` varchar(30) not null,
-            `label` varchar(30) not null,
-            `position` tinyint(1) unsigned default '0' not null,
-            `force_display` tinyint(1) unsigned default '0' null,
-            `allow_iframe` tinyint(1) unsigned default '1' null,
-            `debit_differe` tinyint(1) unsigned null,
-            `3ds` tinyint(1) unsigned null,
-            UNIQUE KEY `cards_unique` (`env`, `payment_method`, `type_payment`, `type_card`));";
+        require_once(ABSPATH.'wp-admin/includes/upgrade.php');
         dbDelta($sql);
-        wc_etransactions_sql_initialization();
         update_option(WC_ETRANSACTIONS_PLUGIN.'_version', WC_ETRANSACTIONS_VERSION);
-    }
-}
-
-function wc_etransactions_sql_initialization()
-{
-    global $wpdb;
-
-    require_once(dirname(__FILE__).'/class/wc-etransactions-config.php');
-
-    // Remove cards that aren't used anymore into default card list
-    $existingCards = $wpdb->get_results("select distinct `type_payment`, `type_card` from `{$wpdb->prefix}wc_etransactions_cards`");
-    foreach ($existingCards as $existingCard) {
-        $cardExists = false;
-        // Check if card already exists
-        foreach (WC_Etransactions_Config::getDefaultCards() as $card) {
-            if ($card['type_payment'] == $existingCard->type_payment
-            && $card['type_card'] == $existingCard->type_card) {
-                $cardExists = true;
-                break;
-            }
-        }
-        if (!$cardExists) {
-            // The card is not managed anymore, delete it
-            $wpdb->delete($wpdb->prefix . 'wc_etransactions_cards', array(
-                'type_payment' => $existingCard->type_payment,
-                'type_card' => $existingCard->type_card,
-            ));
-        }
-    }
-
-    // Create the cards
-    foreach (array('test', 'production') as $env) {
-        foreach (array('etransactions_std') as $paymentMethod) {
-            foreach (WC_Etransactions_Config::getDefaultCards() as $card) {
-                $card['env'] = $env;
-                $card['payment_method'] = $paymentMethod;
-                // Check if card already exists
-                $sql = $wpdb->prepare("select `id_card` from `{$wpdb->prefix}wc_etransactions_cards`
-                where `env` = %s
-                and `payment_method` = %s
-                and `type_payment` = %s
-                and `type_card` = %s", $card['env'], $paymentMethod, $card['type_payment'], $card['type_card']);
-                $idCard = $wpdb->get_col($sql);
-                if (!empty($idCard)) {
-                    continue;
-                }
-                // Create the card
-                $wpdb->insert($wpdb->prefix . 'wc_etransactions_cards', $card);
-            }
-        }
     }
 }
 
@@ -145,7 +80,6 @@ function wc_etransactions_initialization()
         require_once(dirname(__FILE__).'/class/wc-etransactions-config.php');
         require_once(dirname(__FILE__).'/class/wc-etransactions-iso4217currency.php');
         require_once(dirname(__FILE__).'/class/wc-etransactions-iso3166-country.php');
-        require_once(dirname(__FILE__).'/class/wc-etransactions-curl-helper.php');
         require_once(dirname(__FILE__).'/class/wc-etransactions.php');
         require_once(dirname(__FILE__).'/class/wc-etransactions-abstract-gateway.php');
         require_once(dirname(__FILE__).'/class/wc-etransactions-standard-gateway.php');
@@ -163,34 +97,18 @@ function wc_etransactions_initialization()
     if (get_site_option(WC_ETRANSACTIONS_PLUGIN.'_version') != WC_ETRANSACTIONS_VERSION) {
         wc_etransactions_installation();
     }
-
-    // Init hooks & filters
-    wc_etransactions_register_hooks();
-}
-
-function wc_etransactions_register_hooks()
-{
-    // Register hooks & filters for each instance
-    foreach (wc_get_etransactions_classes() as $gatewayClass) {
-        $gatewayClass::getInstance($gatewayClass)->initHooksAndFilters();
-    }
-
-    add_filter('woocommerce_payment_gateways', 'wc_etransactions_register');
-    add_action('woocommerce_admin_order_data_after_billing_address', 'wc_etransactions_show_details');
-}
-
-function wc_get_etransactions_classes()
-{
-    return array(
-        'WC_EStdGw',
-        'WC_E3Gw',
-    );
 }
 
 function wc_etransactions_register(array $methods)
 {
-    return array_merge($methods, wc_get_etransactions_classes());
+    $methods[] = 'WC_EStdGw';
+    $methods[] = 'WC_E3Gw';
+    return $methods;
 }
+
+register_activation_hook(__FILE__, 'wc_etransactions_installation');
+add_action('plugins_loaded', 'wc_etransactions_initialization');
+add_filter('woocommerce_payment_gateways', 'wc_etransactions_register');
 
 function wc_etransactions_show_details(WC_Order $order)
 {
@@ -207,5 +125,23 @@ function wc_etransactions_show_details(WC_Order $order)
     }
 }
 
-register_activation_hook(__FILE__, 'wc_etransactions_installation');
-add_action('plugins_loaded', 'wc_etransactions_initialization');
+add_action('woocommerce_admin_order_data_after_billing_address', 'wc_etransactions_show_details');
+
+function hmac_admin_notice()
+{
+    if (wooCommerceActiveETwp()) {
+        $temp = new WC_EStdGw();
+        $plugin_data = get_plugin_data(__FILE__);
+        $plugin_name = $plugin_data['Name'];
+        if (!$temp->checkCrypto()) {
+            echo "<div class='notice notice-error  is-dismissible'>
+                <p><strong>/!\ Attention ! plugin ".$plugin_name." : </strong>".__('HMAC key cannot be decrypted please re-enter or reinitialise it.', WC_ETRANSACTIONS_PLUGIN)."</p>
+                </div>";
+        }
+    } else {
+        echo "<div class='notice notice-error  is-dismissible'>
+              <p><strong>/!\ Attention ! plugin E-Transactions : </strong>".__('Woocommerce is not active !', 'wc-etransactions')."</p>
+             </div>";
+    }
+}
+add_action('admin_notices', 'hmac_admin_notice');
